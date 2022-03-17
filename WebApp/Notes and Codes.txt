@@ -1,0 +1,152 @@
+REST is an acronym for REpresentational State Transfer and an architectural style for distributed hypermedia systems.
+A Web API (or Web Service) conforming to the REST architectural style is a REST API.
+
+Program class is basically a entry point for the application and load .net core runtime , main() method executes and createsdefaultbuilder called
+
+Startup Class is basically instantiated by create default builder method that was in our main method, Configuration services, configure(Pipeline setup)
+
+CommandsController.cs
+using System.Collections.Generic;
+using Microsoft aspnetcore.MVC;
+
+namesapce Webapi.controllers
+{
+    [Route("api/[controller]")]
+    [apicontroller] //This is telling that it's controller class
+    public class CommandsController : controllerbase
+{
+   [httpget] //It'll respond to get requests from HTML 
+   public actionresult<IEnumerable<string>> GetString()
+{
+    return new string[] {"This","is","Hardcoded"};
+}
+}
+}
+
+Some Websites notes
+https://docs.microsoft.com/en-us/sql/tools/visual-studio-code/sql-server-develop-use-vscode?view=sql-server-ver15
+https://dotnetplaybook.com/develop-a-rest-api-with-net-core/
+https://askubuntu.com/questions/940575/how-to-configure-dbeaver-to-connect-with-ms-sql-server
+https://docs.microsoft.com/en-us/sql/azure-data-studio/what-is-azure-data-studio?view=sql-server-ver15
+https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-management-overview?view=sql-server-ver15
+
+Now For Visual Studio Code ASP.NET MVC Requires to install these Packages of DotNET
+ Microsoft.EntityFrameworkCore.SqlServer 
+ Microsoft.EntityFrameworkCore.Tools
+ dotnet tool install --global dotnet-ef
+ dotnet add package Microsoft.EntityFrameworkCore.Design
+ dotnet ef database update -- --environment Production
+ SELECT TABLE_NAME FROM [<DB>].INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'
+ 
+ I connected to my Microsoft SQL Server Studio Database and Password is this :->
+ Turbo@charger1
+namespace WebApp.Models
+{
+   public class Command
+   {
+     public int Id{get; set;}
+     //Entity framework is convention and configuration and by calling our first attribute Id that basically tells entity framework core without doing any more the values of our primary key for when we created in our table 
+   public string howto{get; set;}
+   public string platform{get;set;}
+   public string Commandline{get;set;}
+   }
+}
+
+public class CommandContext :DbContext
+{
+  public CommandContext(DbContextOptions<CommandContext> options):base (options) 
+  {
+     
+  }
+  public DbSet<Command> CommandITems{get;set;}
+}
+Now to get the database working we need to add Database Entity Framework from Dotnet Core to our project package refference Migration is affected a list of instructions thats telling entity framework core what we need to push them into our database
+dotnet ef migrations add AddCommandtoDB 
+dotnet ef database update // -> This will create database with a table name CommandItem which was set in CommandsController.cs in Controller folder
+[HttpGet]
+        public ActionResult<IEnumerable<Command>> GetCommands()
+        {
+            return _context.CommandItems;
+        }
+
+ASP.NET Core Commands
+GET    -> /api/Commands
+POST   -> /api/Commands
+PUSH   -> /api/Commands/{id}
+PUT    -> /api/Commands/{id}
+DELETE -> /api/Commands/{id}
+
+private readonly CommandContext (CommandContext _context) => _context = context;
+But We cannot use this yet because it's not been instantiated , we need to instantiate it , there is something called construcotr dependency injection
+
+Now we need to create a constructor for our command controller class
+
+We use [httpget] to get response from our server in html file and using that we can actually get response from our database which is shown here
+
+Now this function will access to our private DBContext , which we did saved in our database including tables
+
+[httpget]
+public actionresult <ienurable<Commands>> GetCommands()
+{return _context.CommandItems;}
+
+Now because we did decorate the GET Response to fetch database
+ASP.NET Core MVC Is Smart enough to use conventional or configuration and return back our .json enumeration 
+
+But there is a slight problem if we try to see  POST method in CommandsController.cs file it will not allow because as we can see there is no action result that maps to post 
+So we need to create a post request
+
+Now we will create an HTTP Request which will return on a specific ID and fetch our database.
+
+We'll use variable n to assign variable a number so whenever it'll call out it'll show our data
+
+So Multiple Request will be a problem while run in dotnet so we need to give httpget an ID which it'll respond it to them
+
+Now in this Action Result we will create a containing command item 
+var commandItem=_contxt.CommandItems.Find(Id); //This will fild the Id from our DBContext Class and fetch it back if it's finds one
+If not , we need to postback the error result too otherwise it may crash
+if(commandItem==null)
+{return notFound();}
+return commandItem;
+
+We are going to create API to create data, so we will use POST request 
+
+[httppost]
+public ActionResult<Command> PostCommandItem(Command command)
+{
+   _context.CommandItem.Add(command);
+   _context.SaveChanges();
+   return CreatedAtAction("GetCommandItem",new Command{Id=command.Id,command});
+}
+/*
+We created our resource or our command object we then pass it back as a part of our return, via postman
+But we will use POSTMAN to send our changes to our data in our DataBase via POST Request.
+*/
+PUT -> need to pass entire object to update (Effectively a "Replacement")
+PATCH -> It came after PUT selected attribute updates
+
+//PUT   api/commands/n
+using Microsoft.Entityframeworkcore;
+[httpput("{id}")]
+public actionresult putcommanditem(int id,Command command)
+{
+   if(id!=command.Id)
+   {
+      return badrequest();
+   }
+   _context.entry(command).State=EntityState.Modified;
+   _context.SaveChanges();
+   return NoContent();
+}
+
+[httpdelete("{id}")]
+public actionResult<command> DeleteCommandItem(Int id)
+{
+   var commandItem=_context.CommandItem.Find(Id);
+   if(commandItem==null)
+   {
+      return NotFound();
+   }
+   _context.CommandItems.Remove(commandItem);
+_context.SaveChanges();
+ return commandITem;
+} 
