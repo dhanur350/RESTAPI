@@ -39,7 +39,7 @@ Now For Visual Studio Code ASP.NET MVC Requires to install these Packages of Dot
  SELECT TABLE_NAME FROM [<DB>].INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'
  
  I connected to my Microsoft SQL Server Studio Database and Password is this :->
- Turbo@charger1
+ Turbocharger@1
 namespace WebApp.Models
 {
    public class Command
